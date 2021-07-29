@@ -22,6 +22,7 @@ package queue
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -188,6 +189,8 @@ func (t *timerQueueProcessor) Stop() {
 		return
 	}
 
+	t.logger.Info("Shutting down timer queue processor", tag.LifeCycleStopping)
+
 	t.activeQueueProcessor.Stop()
 	if t.isGlobalDomainEnabled {
 		for _, standbyQueueProcessor := range t.standbyQueueProcessors {
@@ -315,7 +318,7 @@ func (t *timerQueueProcessor) HandleAction(clusterName string, action *Action) (
 	}
 
 	if !added {
-		return nil, errProcessorShutdown
+		return nil, errors.New("unable to add action: " + errProcessorShutdown.Error())
 	}
 
 	select {

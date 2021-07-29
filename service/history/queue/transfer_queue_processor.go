@@ -199,6 +199,8 @@ func (t *transferQueueProcessor) Stop() {
 		return
 	}
 
+	t.logger.Info("Shutting down transfer queue processor", tag.LifeCycleStopping)
+
 	t.activeQueueProcessor.Stop()
 	if t.isGlobalDomainEnabled {
 		for _, standbyQueueProcessor := range t.standbyQueueProcessors {
@@ -322,7 +324,7 @@ func (t *transferQueueProcessor) HandleAction(clusterName string, action *Action
 	}
 
 	if !added {
-		return nil, errProcessorShutdown
+		return nil, errors.New("unable to add action: " + errProcessorShutdown.Error())
 	}
 
 	select {
